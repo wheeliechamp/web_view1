@@ -1,0 +1,263 @@
+package com.wheeliechamp.webscraping.viewmodel
+
+import android.webkit.WebView
+import android.app.PendingIntent.getActivity
+import android.content.Context
+import android.util.Log
+import androidx.databinding.BindingAdapter
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.preference.PreferenceManager
+import com.wheeliechamp.webscraping.R
+import com.wheeliechamp.webscraping.WebSrc
+import com.wheeliechamp.webscraping.model.User
+import com.wheeliechamp.webscraping.room.UserDao
+import com.wheeliechamp.webscraping.room.UserDatabase
+import com.wheeliechamp.webscraping.view.WebFragment
+import kotlinx.android.synthetic.main.fragment_web.view.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
+import com.github.kittinunf.fuel.Fuel
+
+
+class WebViewModel : ViewModel() {
+
+    lateinit var mUserDao: UserDao
+    lateinit var context: Context
+
+    val websrc = WebSrc.getInstance()
+
+    var prev_section: Int = 0
+    var isRun: Boolean = true
+    var url = MutableLiveData<String>()
+    var hashmap = mutableMapOf<String, String>()
+
+    private val _text = MutableLiveData<String>().apply {
+        value = "This is home Fragment"
+    }
+
+    val text: LiveData<String> = _text
+    val countText = MutableLiveData<String>("MutableLiveData")
+
+    fun start() {
+    }
+
+    fun btnStartClick(wv: WebView) {
+        Log.d("Test", "btnStartClick!!!!")
+        isRun = true
+        var interval_value = 3 * 60 + 40 - 2
+        var count: Int = 0
+        var season: String = ""
+        var section: String = "0"
+        var section_prev: String = "0"
+        var newseason = false
+        var season_end = false
+        wv.loadUrl("https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/category/1111")
+        viewModelScope.launch() {
+            while(isRun) {
+                if (count > interval_value) {
+                    count = 0
+                    if (newseason) {
+                        Log.d("Test", "new_season loadurl")
+                        websrc.htmlsrc = ""
+                        newseason = false
+                        wv.loadUrl("https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/category/1111")
+                    } else {
+                        Log.d("Test", "reload")
+                        wv.reload()
+                    }
+                }
+                if (websrc.htmlsrc.toString().isNotEmpty()) {
+                    var htmlbody: Document = Jsoup.parse(websrc.htmlsrc.toString())
+                    var title: Elements = htmlbody.select("title")
+
+                    if (title.toString().indexOf(context.getString(R.string.first_page_title)) == 7) {
+                        // 初期画面の場合は season 取得してリーグモードに遷移
+                        Log.d("Test", "first_page_title")
+                        season = getSeasonNo(htmlbody)
+                        wv.loadUrl("https://st-cdn001.akamaized.net/flyingcockatoovirtuals/en/1/season/" + season)
+                        websrc.htmlsrc = ""
+                    } else if(title.toString().indexOf(context.getString(R.string.leag_page_title)) > 0) {
+                        // リーグモードの場合はゲーム履歴を解析
+                        Log.d("Test", "leag_page_title")
+                        // 前回とSectionが同じ場合、5秒後に再読み込みする
+//                        section = getSection(htmlbody, season)
+//                        Log.d("Test", section + " / " + section_prev)
+//                        Log.d("Test", "count = " + count)
+//                        if (section == section_prev) {
+//                            count = interval_value - 5
+//                            Log.d("Test", "count_ = " + count)
+//                        } else {
+//                            // 30節までいったら何かを返すか
+                        section = drawCheck(htmlbody, season)
+                        section_prev = section
+//                            count += 8
+//                            Log.d("Test", "$count + 7")
+//                        }
+                        websrc.htmlsrc = ""
+                    }
+                    // 30節の場合 5分39秒=339秒-220秒=119秒
+                    if (Integer.parseInt(section) == 30) {
+                        count = -120
+                        season_end = true
+                    }
+                    // 30節終了の場合
+                    if (season_end) {
+                        season_end = false
+                        newseason = true
+                        section = "0"
+                    }
+                }
+                //countText.value = count.toString()
+                countText.value = (interval_value - count).toString()
+                delay(1000L)
+                count++
+            }
+            Log.d("Test", "viewModelScope")
+        }
+    }
+
+    fun btnStopClick() {
+        isRun = false
+        mUserDao = UserDatabase.getInstance(context).userDao()
+        insertUser()
+        //sendSeasonResult(true)
+        Log.d("Test", "btnStopClick!!!!")
+    }
+
+    private fun insertUser() {
+        val newUser = User(0, "Taro", "Yamada")
+        mUserDao.insertAll(newUser)
+        Log.d("Test", mUserDao.getAll().toString())
+    }
+
+
+    // 初期ページからシーズン番号を取得
+    private fun getSeasonNo(htmldoc: Document): String {
+        var season: String = ""
+        var elm: Elements = htmldoc.getElementsByClass("list-group-item")
+        Log.d("Test", elm[2].toString())
+        var s1 = elm[2].toString().split("season/")[1]
+        season = s1.split("\"><")[0]
+        Log.d("Test", season)
+        return season
+    }
+
+    private fun getSection(htmldoc: Document, season: String): String {
+        Log.d("Test", "========== getSection!! ==========")
+        var section: String = ""
+        var panelbody: String = htmldoc.getElementsByClass("panel-body").text()
+        val team_listdata = panelbody.split("VL ").drop(1)
+        val team_details = team_listdata[1].split(" ")
+        section = team_details[1]
+        return section
+    }
+
+    private fun drawCheck(htmldoc: Document, season: String): String {
+        Log.d("Test", "========== drawCheck!! ==========")
+        var section: String = ""
+        var msg_buf: StringBuilder = StringBuilder()
+
+        // シーズン名取得
+        var headder: String = htmldoc.getElementsByClass("popup-navigation").text()
+        var season_name: String = headder.split(" ").last()
+        Log.d("Test", season_name)
+
+        var panelbody: String = htmldoc.getElementsByClass("panel-body").text()
+        //Log.d("Test", "${htmldoc.toString()} \n $panelbody")
+        val team_listdata = panelbody.split("VL ").drop(1)
+        for(i in 0..31 step 2) {
+        // Log.d("Test", team_listdata[i])     Vienna
+        // Log.d("Test", team_listdata[i+1])   Vienna 8 1 2 5 6 15 -9 5 W L D L D Pos# TeamT P W D L GF GA DIFF PTS Form 1
+            val team_details = team_listdata[i+1].split(" ")
+            // 勝敗履歴
+            var j: Int = 0
+            var wdl: String = ""
+            for(detail in team_details) {
+                if (j >= 9 && j <= 13) {
+                    if (detail == "W" || detail == "D" || detail == "L") {
+                        wdl += detail
+                    } else {
+                        break
+                    }
+                }
+                j++
+            }
+            var team_name: String = team_details[0]
+            section = team_details[1]
+            // ゲーム履歴を追加
+            if (prev_section != Integer.parseInt(section) && Integer.parseInt(section) > 0) {
+                if (hashmap["$season_name:$team_name"].isNullOrEmpty()) {
+                    // 履歴がない場合
+                    Log.d("Test", "履歴追加")
+                    hashmap["$season_name:$team_name"] = wdl
+                    //hashmap["$season:$team_name"] = team_details[9]
+                } else {
+                    var tmp = hashmap["$season_name:$team_name"]
+                    hashmap["$season_name:$team_name"] = team_details[9] + tmp
+                }
+            }
+
+            var d3: Boolean = wdl.startsWith("DDD")
+            var d4: Boolean = wdl.startsWith("DDDD")
+            var d5: Boolean = wdl.startsWith("DDDDD")
+
+            if (d3 || d4 || d5) {
+                msg_buf.append("$section : ${(i+2)/2} : $team_name:[$wdl]\n")
+            } else {
+            }
+            if (i <= 8) {
+                // 5位まで3戦勝ちなし
+                var w: Int = wdl.indexOf("W")
+                //var l3: Boolean = wdl.startsWith
+                //                // 該当なし("LLL")
+                if ((w < 0) || (w >= 3)) {
+                    msg_buf.append("$section : ${(i + 2) / 2} : $team_name:[$wdl]\n")
+                }
+            }
+            if (i == 30) {
+                // 最下位が3連勝
+                if (wdl.startsWith("WWW")) {
+                    msg_buf.append("$section: $i: $team_name:[$wdl]\n")
+                }
+            }
+// 信頼度低いので一旦はずす
+//            // 引き分け数が11以上
+//            if (team_details[3].toInt() >= 11) {
+//                var draw = team_details[3]
+//                //msg_buf.append("$section : $i : $team_name:draw $draw:[$wdl]\n")
+//            }
+//            // 11戦以上未勝利
+//            if (section.toInt() >= 11) {
+//                if (team_details[2].toInt() == 0) {
+//                    //msg_buf.append("$section : $i : $team_name:未勝利\n")
+//                }
+//            }
+
+            Log.d("Test", "$section, ${(i+2)/2}, $team_name, $wdl")
+        }
+        if (msg_buf.isNotEmpty()) {
+            sendMessage(msg_buf.toString())
+            Log.d("Test", "msg :: ${msg_buf.toString()}")
+            msg_buf.clear()
+        }
+        prev_section = Integer.parseInt(section)
+        return section
+    }
+
+    // Slackにメッセージ送信
+    fun sendMessage(msg: String) {
+        val webhook: String = "https://hooks.slack.com/services/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"
+        val body: String = "{ \"text\" : \"$msg\" }"
+        Fuel.post(webhook).body(body).response { _, response, result ->
+            Log.d("Send", response.toString())
+            Log.d("Send", result.toString())
+        }
+        Log.d("Test", "sendMessage")
+    }
+}
