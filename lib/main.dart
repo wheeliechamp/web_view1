@@ -63,8 +63,13 @@ class _WebViewExampleState extends State<WebViewExample> {
           onPageStarted: (String url) {
             debugPrint('Page started loading: $url');
           },
-          onPageFinished: (String url) {
+          onPageFinished: (String url) async {
             debugPrint('Page finished loading: $url');
+
+            final String body = await controller.runJavaScriptReturningResult(
+                'document.body.innerHTML;'
+            ) as String;
+            debugPrint(body);
           },
           onWebResourceError: (WebResourceError error) {
             debugPrint('''
@@ -161,11 +166,6 @@ Page resource error:
   void _onTimer() async {
 
     debugPrint("------------------");
-    // final String body = await _controller.runJavaScriptReturningResult(
-    //     'document.body.innerHTML;'
-    // ) as String;
-    // debugPrint(body);
-
     if (_timerRun) {
       _counter = 0;
       _timer!.cancel();
@@ -181,6 +181,10 @@ Page resource error:
               'document.body.innerHTML;'
           ) as String;
           debugPrint(body);
+        } else if (_counter == 20) {
+          _controller.reload();
+        } else if (_counter == 30) {
+          _controller.loadRequest(Uri.parse('https://yahoo.co.jp'));
         }
         setState(() {
           _counter++;
