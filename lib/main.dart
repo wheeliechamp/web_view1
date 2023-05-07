@@ -146,26 +146,47 @@ Page resource error:
     );
   }
   Widget favoriteButton() {
-
-    int _counter = 0;
     return FloatingActionButton(
-      onPressed: () async {
-        Timer.periodic(
-          const Duration(seconds: 1), (Timer timer) {
-            _counter++;
-            if (_counter > 5) {
-              debugPrint("=====");
-              _counter = 0;
-            }
-          }
-        );
-        final String body = await _controller.runJavaScriptReturningResult(
-            'document.body.innerHTML;'
-        ) as String;
-        debugPrint(body);
-      },
+
+      onPressed: _onTimer,
+      //onPressed: () async {
       child: const Icon(Icons.favorite),
     );
+  }
+
+  int _counter = 0;
+  bool _timerRun = false;
+  Timer? _timer;
+
+  void _onTimer() async {
+
+    debugPrint("------------------");
+    // final String body = await _controller.runJavaScriptReturningResult(
+    //     'document.body.innerHTML;'
+    // ) as String;
+    // debugPrint(body);
+
+    if (_timerRun) {
+      _counter = 0;
+      _timer!.cancel();
+      _timerRun = false;
+    } else {
+      _timerRun = true;
+      _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
+        //debugPrint(_counter.toString());
+        debugPrint(_timer?.tick.toString());
+        if (_counter == 10) {
+          debugPrint("@@@@@@@@@@@@@@");
+          final String body = await _controller.runJavaScriptReturningResult(
+              'document.body.innerHTML;'
+          ) as String;
+          debugPrint(body);
+        }
+        setState(() {
+          _counter++;
+        });
+      });
+    }
   }
 }
 
