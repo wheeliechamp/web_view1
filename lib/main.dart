@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:gap/gap.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -147,15 +148,26 @@ Page resource error:
           )
         )
       ),
-      floatingActionButton: favoriteButton(),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          stopButton(),
+          const Gap(16),
+          startButton(),
+        ],
+      )
     );
   }
-  Widget favoriteButton() {
+  Widget startButton() {
     return FloatingActionButton(
-
       onPressed: _onTimer,
-      //onPressed: () async {
-      child: const Icon(Icons.favorite),
+      child: const Icon(Icons.start),
+    );
+  }
+  Widget stopButton() {
+    return FloatingActionButton(
+      onPressed: _onTimer,
+      child: const Icon(Icons.stop),
     );
   }
 
