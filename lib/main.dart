@@ -131,19 +131,29 @@ Page resource error:
       body: Center(
         child: Container(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Flexible(
-                flex: 1,
-                child: Container(
+              Expanded(
+                  child: Container(
+                    height: double.infinity,
                     child: WebViewWidget(controller: _controller)
-                )
+                  ),
               ),
-              Flexible(
-                flex: 1,
-                child: Container(
-                  color: Colors.blue,
-                ),
+              Container(
+                  child: TextField()
               ),
+              // Flexible(
+              //   flex: 1,
+              //   child: Container(
+              //       child: WebViewWidget(controller: _controller)
+              //   )
+              // ),
+              // Flexible(
+              //   flex: 1,
+              //   child: Container(
+              //     color: Colors.blue,
+              //   ),
+              // ),
             ]
           )
         )
