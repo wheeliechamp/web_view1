@@ -252,7 +252,7 @@ class WebViewModel : ViewModel() {
 
     // Slackにメッセージ送信
     fun sendMessage(msg: String) {
-        val webhook: String = "https://hooks.slack.com/services/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"
+        val webhook: String = "https://hooks.slack.com/services/..."
         val body: String = "{ \"text\" : \"$msg\" }"
         Fuel.post(webhook).body(body).response { _, response, result ->
             Log.d("Send", response.toString())
