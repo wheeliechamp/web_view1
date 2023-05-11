@@ -33,6 +33,7 @@ class WebViewExample extends StatefulWidget {
 
 class _WebViewExampleState extends State<WebViewExample> {
   late final WebViewController _controller;
+  final _textEditController = TextEditingController();//text: '300');
 
   @override
   void initState() {
@@ -140,7 +141,11 @@ Page resource error:
                   ),
               ),
               Container(
-                  child: TextField()
+                  child: TextFormField(
+                    //initialValue: '100',
+                    controller: _textEditController,
+                    //controller: TextEditingController(text: '200'),
+                  )
               ),
               // Flexible(
               //   flex: 1,
@@ -188,6 +193,7 @@ Page resource error:
   void _onTimer() async {
 
     debugPrint("------------------");
+    _textEditController.text="123";
     if (_timerRun) {
       _counter = 0;
       _timer!.cancel();
