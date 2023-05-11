@@ -193,7 +193,6 @@ Page resource error:
   void _onTimer() async {
 
     debugPrint("------------------");
-    _textEditController.text="123";
     if (_timerRun) {
       _counter = 0;
       _timer!.cancel();
@@ -203,6 +202,7 @@ Page resource error:
       _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
         //debugPrint(_counter.toString());
         debugPrint(_timer?.tick.toString());
+        _textEditController.text=_counter.toString();
         if (_counter == 10) {
           debugPrint("@@@@@@@@@@@@@@");
           final String body = await _controller.runJavaScriptReturningResult(
