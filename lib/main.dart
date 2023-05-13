@@ -32,12 +32,15 @@ class WebViewExample extends StatefulWidget {
 }
 
 class _WebViewExampleState extends State<WebViewExample> {
+  static int timerDefault = 30;
+  bool _textEnabled = true;
   late final WebViewController _controller;
-  final _textEditController = TextEditingController();//text: '300');
+  final _textEditController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _textEditController.text = timerDefault.toString();
 
     // #docregion platform_features
     late final PlatformWebViewControllerCreationParams params;
@@ -142,23 +145,11 @@ Page resource error:
               ),
               Container(
                   child: TextFormField(
-                    //initialValue: '100',
+                    //readOnly: _textReadOnly,
+                    enabled: _textEnabled,
                     controller: _textEditController,
-                    //controller: TextEditingController(text: '200'),
-                  )
+                  ),
               ),
-              // Flexible(
-              //   flex: 1,
-              //   child: Container(
-              //       child: WebViewWidget(controller: _controller)
-              //   )
-              // ),
-              // Flexible(
-              //   flex: 1,
-              //   child: Container(
-              //     color: Colors.blue,
-              //   ),
-              // ),
             ]
           )
         )
@@ -186,39 +177,48 @@ Page resource error:
     );
   }
 
-  int _counter = 0;
   bool _timerRun = false;
   Timer? _timer;
+  int _counter=0;
 
   void _onTimer() async {
-
     debugPrint("------------------");
+
+    debugPrint("TimerRun : $_timerRun");
+    debugPrint("TextEnabled : $_textEnabled");
     if (_timerRun) {
-      _counter = 0;
+      _textEnabled = true;
+    } else {
+      _textEnabled = false;
+    }
+
+    if (_timerRun) {
       _timer!.cancel();
       _timerRun = false;
     } else {
+      debugPrint("@@@@@@@@@@@@@@@@@@");
       _timerRun = true;
+      debugPrint(_textEditController.text);
+      _counter = int.parse(_textEditController.text);
       _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
-        //debugPrint(_counter.toString());
         debugPrint(_timer?.tick.toString());
         _textEditController.text=_counter.toString();
-        if (_counter == 10) {
-          debugPrint("@@@@@@@@@@@@@@");
+        if (_counter == 25) {
           final String body = await _controller.runJavaScriptReturningResult(
               'document.body.innerHTML;'
           ) as String;
           debugPrint(body);
         } else if (_counter == 20) {
           _controller.reload();
-        } else if (_counter == 30) {
+        } else if (_counter == 10) {
           _controller.loadRequest(Uri.parse('https://yahoo.co.jp'));
+        } else if (_counter == 0) {
+          _counter = 30;
         }
-        setState(() {
-          _counter++;
-        });
+          _counter--;
       });
     }
+    setState(() {});
   }
 }
 
