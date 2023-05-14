@@ -18,6 +18,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 // Import for iOS features.
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'package:window_size/window_size.dart';
+
 // #enddocregion platform_imports
 
 void main() => runApp(
@@ -36,6 +38,7 @@ class _WebViewExampleState extends State<WebViewExample> {
   bool _textEnabled = true;
   late final WebViewController _controller;
   final _textEditController = TextEditingController();
+  String htmlSrc = "";
 
   @override
   void initState() {
@@ -71,27 +74,11 @@ class _WebViewExampleState extends State<WebViewExample> {
           onPageFinished: (String url) async {
             debugPrint('Page finished loading: $url');
 
-            final String body = await controller.runJavaScriptReturningResult(
+            //final String body = await controller.runJavaScriptReturningResult(
+            htmlSrc = await controller.runJavaScriptReturningResult(
                 'document.body.innerHTML;'
             ) as String;
-            debugPrint(body);
-          },
-          onWebResourceError: (WebResourceError error) {
-            debugPrint('''
-Page resource error:
-  code: ${error.errorCode}
-  description: ${error.description}
-  errorType: ${error.errorType}
-  isForMainFrame: ${error.isForMainFrame}
-          ''');
-          },
-          onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith('https://www.youtube.com/')) {
-              debugPrint('blocking navigation to ${request.url}');
-              return NavigationDecision.prevent;
-            }
-            debugPrint('allowing navigation to ${request.url}');
-            return NavigationDecision.navigate;
+            debugPrint(htmlSrc);
           },
           onUrlChange: (UrlChange change) {
             debugPrint('url change to ${change.url}');
@@ -106,7 +93,8 @@ Page resource error:
           );
         },
       )
-      ..loadRequest(Uri.parse('https://flutter.dev'));
+      ..setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Safari/537.36")
+      ..loadRequest(Uri.parse('https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/category/1111'));//https://flutter.dev'));
       //flutter_windows_3.7.12-stable
 
     // #docregion platform_features
@@ -134,18 +122,21 @@ Page resource error:
       // body: WebViewWidget(controller: _controller),
       body: Center(
         child: Container(
+          width: 2000,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
+            //mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Expanded(
                   child: Container(
                     height: double.infinity,
-                    child: WebViewWidget(controller: _controller)
+              child: WebViewWidget(
+                layoutDirection: TextDirection.ltr,
+                controller: _controller
+                    )
                   ),
               ),
               Container(
                   child: TextFormField(
-                    //readOnly: _textReadOnly,
                     enabled: _textEnabled,
                     controller: _textEditController,
                   ),
@@ -182,39 +173,41 @@ Page resource error:
   int _counter=0;
 
   void _onTimer() async {
-    debugPrint("------------------");
-
-    debugPrint("TimerRun : $_timerRun");
-    debugPrint("TextEnabled : $_textEnabled");
-    if (_timerRun) {
-      _textEnabled = true;
-    } else {
-      _textEnabled = false;
-    }
 
     if (_timerRun) {
       _timer!.cancel();
       _timerRun = false;
+      _textEnabled = true;
     } else {
-      debugPrint("@@@@@@@@@@@@@@@@@@");
       _timerRun = true;
-      debugPrint(_textEditController.text);
+      _textEnabled = false;
       _counter = int.parse(_textEditController.text);
       _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
-        debugPrint(_timer?.tick.toString());
+        debugPrint("$_timer?.tick :: $_counter");
         _textEditController.text=_counter.toString();
-        if (_counter == 25) {
-          final String body = await _controller.runJavaScriptReturningResult(
-              'document.body.innerHTML;'
-          ) as String;
-          debugPrint(body);
-        } else if (_counter == 20) {
-          _controller.reload();
-        } else if (_counter == 10) {
-          _controller.loadRequest(Uri.parse('https://yahoo.co.jp'));
-        } else if (_counter == 0) {
-          _counter = 30;
+        if (htmlSrc.isNotEmpty) {
+          debugPrint("html取得");
+          htmlSrc = "";
+        } else {
+          debugPrint("html未取得");
+          if (_counter == 0) {
+            _counter = 30;
+            _controller.reload();
+          }
         }
+
+        // if (_counter == 25) {
+        //   final String body = await _controller.runJavaScriptReturningResult(
+        //       'document.body.innerHTML;'
+        //   ) as String;
+        //   debugPrint(body);
+        // } else if (_counter == 20) {
+        //   _controller.reload();
+        // } else if (_counter == 10) {
+        //   _controller.loadRequest(Uri.parse('https://yahoo.co.jp'));
+        // } else if (_counter == 0) {
+        //   _counter = 30;
+        // }
           _counter--;
       });
     }
