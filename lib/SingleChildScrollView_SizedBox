@@ -125,52 +125,30 @@ class _WebViewExampleState extends State<WebViewExample> {
               ),
               body: Center(
                   child: Container(
-                    width: 2000,
-                    child: Transform.scale(
-                    scale: 0.5,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                        child: SizedBox(
-                            width: 1500,
-                            child: WebViewWidget(
-                                layoutDirection: TextDirection.ltr,
-                                controller: _controller
-                            )
-                        )
-                    ),
-                    ),
-                    // child: Transform.scale(
-                    //     scale: 0.7,
-                    // ),
-                      // child: Column(
+                      width: 2000,
+                      child: Column(
                         //mainAxisAlignment: MainAxisAlignment.end,
-                        //   children: [
-                        //     Expanded(
-                        //     //child: SizedBox(
-                        //       //width: 2000,
-                        //       child: Transform.scale(
-                        //             scale: 0.5,
-                        //             //child: SingleChildScrollView(
-                        //               //scrollDirection: Axis.horizontal,
-                        //                 //child: SizedBox(
-                        //                   //width: 2000,
-                        //                     child: WebViewWidget(
-                        //                         layoutDirection: TextDirection.ltr,
-                        //                         controller: _controller
-                        //                     )
-                        //                 //),
-                        //             //),
-                        //         ),
-                        //     //),
-                        //     ),
-                        //     // Container(
-                        //     //   child: TextFormField(
-                        //     //     enabled: _textEnabled,
-                        //     //     controller: _textEditController,
-                        //     //   ),
-                        //     // ),
-                        //   ]
-                      // )
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: SizedBox(
+                                    width: 1500,
+                                      child: WebViewWidget(
+                                          layoutDirection: TextDirection.ltr,
+                                          controller: _controller
+                                      )
+                                  ),
+                              ),
+                            ),
+                            Container(
+                              child: TextFormField(
+                                enabled: _textEnabled,
+                                controller: _textEditController,
+                              ),
+                            ),
+                          ]
+                      )
                   )
               ),
 
