@@ -125,20 +125,44 @@ class _WebViewExampleState extends State<WebViewExample> {
               ),
               body: Center(
                   child: Container(
-                    width: 2000,
-                    child: Transform.scale(
-                    scale: 0.5,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                        child: SizedBox(
-                            width: 1500,
-                            child: WebViewWidget(
-                                layoutDirection: TextDirection.ltr,
-                                controller: _controller
-                            )
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.red),
+                    ),
+
+                      child: SizedBox(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+
+                          child: SizedBox(
+                            width:800,
+                           child: Transform.scale(
+                               alignment: Alignment.topLeft,
+                               //scaleX: 0.45,
+                               scale: 0.45,
+                                child: WebViewWidget(
+                                   //layoutDirection: TextDirection.ltr,
+                                   controller: _controller
+                               )
+                          )
                         )
-                    ),
-                    ),
+                    )
+                      )
+
+
+                    //width: 2000,
+                    //child: SingleChildScrollView(
+                      //scrollDirection: Axis.horizontal,
+                      //child: SizedBox(
+                        //width: 1000,
+                        // child: Transform.scale(
+                        //   scale: 0.8,
+                        //   child: WebViewWidget(
+                        //       layoutDirection: TextDirection.ltr,
+                        //       controller: _controller
+                        //   )
+                        // )               //         )
+                      //),
+                    //),
                     // child: Transform.scale(
                     //     scale: 0.7,
                     // ),
