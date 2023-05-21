@@ -72,6 +72,7 @@ class WebViewModel : ViewModel() {
                         wv.reload()
                     }
                 }
+
                 if (websrc.htmlsrc.toString().isNotEmpty()) {
                     var htmlbody: Document = Jsoup.parse(websrc.htmlsrc.toString())
                     var title: Elements = htmlbody.select("title")

@@ -15,18 +15,18 @@ import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
 // #docregion platform_imports
 // Import for Android features.
 import 'package:webview_flutter_android/webview_flutter_android.dart';
-
 // Import for iOS features.
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'package:window_size/window_size.dart';
 
 // #enddocregion platform_imports
 
-void main() => runApp(const MaterialApp(home: WebViewExample()));
+void main() => runApp(
+    const MaterialApp(home: WebViewExample())
+);
 
 class WebViewExample extends StatefulWidget {
   const WebViewExample({super.key});
@@ -60,7 +60,7 @@ class _WebViewExampleState extends State<WebViewExample> {
     }
 
     final WebViewController controller =
-        WebViewController.fromPlatformCreationParams(params);
+    WebViewController.fromPlatformCreationParams(params);
     // #enddocregion platform_features
 
     controller
@@ -76,39 +76,24 @@ class _WebViewExampleState extends State<WebViewExample> {
           },
           onPageFinished: (String url) async {
             debugPrint('Page finished loading: $url');
+
+            //final String body = await controller.runJavaScriptReturningResult(
+            htmlSrc = await controller.runJavaScriptReturningResult(
+                'document.body.innerHTML;'
+            ) as String;
+            //debugPrint(htmlSrc);
+            String document = await controller.runJavaScriptReturningResult(
+                'document.body;'
+            ) as String;
             var title = await controller.runJavaScriptReturningResult(
                 'document.title;'
             ) as String;
-            debugPrint("1 --------------------------------------");
+            debugPrint("--------------------------------------");
+            debugPrint(htmlSrc);
+            debugPrint("======================================");
             debugPrint(title);
-
-            debugPrint("2 --------------------------------------");
-            String body = await controller.runJavaScriptReturningResult(
-                'document.getElementsByTagName("body")[0].innerHTML;'
-            ) as String;
-            debugPrint(body);
-            debugPrint("2-1 ------------------------------------");
-            var body2=parse(body);
-            debugPrint(body2.outerHtml);//getElementsByTagName("a")[0].innerHtml);
-
-            debugPrint("3 --------------------------------------");
-            String tag_a0 = await controller.runJavaScriptReturningResult(
-            //final String body = await controller.runJavaScriptReturningResult(
-                'document.getElementsByTagName("a")[0].innerHTML;'
-            ) as String;
-            debugPrint(tag_a0);
-
-            debugPrint("4 --------------------------------------");
-            String tag_span0 = await controller.runJavaScriptReturningResult(
-                'document.getElementsByTagName("span")[0].innerHTML;'
-            ) as String;
-            debugPrint(tag_span0);
-
-            // debugPrint(parse(htmlSrc).getElementsByClassName("list-group-item")[1].innerHtml);
-            //debugPrint(document);
-            // debugPrint(parse(document).body?.innerHtml);
-            //     .getElementsByClassName("list-group-item")[1]
-            //     .innerHtml);
+            debugPrint(document);
+            debugPrint(parse(document).getElementsByClassName("list-group-item")[1].innerHtml);
           },
           onUrlChange: (UrlChange change) {
             debugPrint('url change to ${change.url}');
@@ -123,10 +108,8 @@ class _WebViewExampleState extends State<WebViewExample> {
           );
         },
       )
-      ..setUserAgent(
-          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Safari/537.36")
-      ..loadRequest(Uri.parse("https://yahoo.co.jp"));
-          //'https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/category/1111')); //https://flutter.dev'));
+      ..setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Safari/537.36")
+      ..loadRequest(Uri.parse('https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/category/1111'));//https://flutter.dev'));
     //flutter_windows_3.7.12-stable
 
     // #docregion platform_features
@@ -143,58 +126,68 @@ class _WebViewExampleState extends State<WebViewExample> {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      //designSize: const Size(2000, 2000),
-      builder: (BuildContext context, Widget? child) {
-        return Scaffold(
-            backgroundColor: Colors.green,
-            appBar: AppBar(
-              title: const Text('Flutter WebView example'),
-              // This drop down menu demonstrates that Flutter widgets can be shown over the web view.
-              actions: <Widget>[
-                NavigationControls(webViewController: _controller),
-              ],
-            ),
-            body: Center(
-                child:
-                    Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red),
-                  ),
-                  child: SizedBox(
-                      child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: SizedBox(
-                                  width: 800,
-                                  height: 1400,
-                                  child: Transform.scale(
-                                      alignment: Alignment.topLeft,
-                                      //scaleX: 0.45,
-                                      scale: 0.45,
-                                      child: WebViewWidget(
-                                          layoutDirection: TextDirection.ltr,
-                                          controller: _controller)))))),
-                ),
+        //designSize: const Size(2000, 2000),
+        builder: (BuildContext context, Widget? child) {
+          return Scaffold(
+              backgroundColor: Colors.green,
+              appBar: AppBar(
+                title: const Text('Flutter WebView example'),
+                // This drop down menu demonstrates that Flutter widgets can be shown over the web view.
+                actions: <Widget>[
+                  NavigationControls(webViewController: _controller),
+                ],
               ),
-              Container(
-                child: TextFormField(
-                  enabled: _textEnabled,
-                  controller: _textEditController,
-                ),
+              body: Center(
+                child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.red),
+                        ),
+                        child: SizedBox(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  child: SizedBox(
+                                      width: 800,
+                                      height: 1400,
+                                      child: Transform.scale(
+                                          alignment: Alignment.topLeft,
+                                          //scaleX: 0.45,
+                                          scale: 0.45,
+                                          child: WebViewWidget(
+                                              layoutDirection: TextDirection.ltr,
+                                              controller: _controller
+                                          )
+                                      )
+                                  )
+                              )
+                          )
+                        ),
+                      ),
+                    ),
+                    Container(
+                      child: TextFormField(
+                        enabled: _textEnabled,
+                        controller: _textEditController,
+                      ),
+                    ),
+                  ]
+                )
               ),
-            ])),
-            floatingActionButton: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                stopButton(),
-                const Gap(16),
-                startButton(),
-              ],
-            ));
-      },
+              floatingActionButton: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  stopButton(),
+                  const Gap(16),
+                  startButton(),
+                ],
+              )
+          );
+        },
     );
   }
 
@@ -204,45 +197,19 @@ class _WebViewExampleState extends State<WebViewExample> {
       child: const Icon(Icons.start),
     );
   }
-
   Widget stopButton() {
     return FloatingActionButton(
-      onPressed: _onTimer2,
+      onPressed: _onTimer,
       child: const Icon(Icons.stop),
     );
   }
 
   bool _timerRun = false;
   Timer? _timer;
-  int _counter = 0;
+  int _counter=0;
 
-  void _onTimer2() {
-    var document = parse("""
-<div class="weather-item now"><!-- now -->
-<span class="time">Now</span>
-<div class="temp">19.8<span>℃</span>
-        <small>(23℃)</small>
-</div>
-<table>  
-<tbody><tr>
-           <th><i class="icon01" aria-label="true"></i></th>
-           <td>93%</td>  
-</tr>  
-<tr>
-           <th><i class="icon02" aria-label="true"></i></th>
-           <td>south 2.2km/h</td>   
-</tr>  
-<tr>
-           <th><i class="icon03" aria-label="true"></i></th>       
-<td>-</td> 
-</tr>  
-</tbody></table>
-</div>
-""");
-    debugPrint(document.getElementsByClassName("time")[0].innerHtml);
-  }
+  void _onTimer() async {
 
-    void _onTimer() async {
     if (_timerRun) {
       _timer!.cancel();
       _timerRun = false;
@@ -253,9 +220,11 @@ class _WebViewExampleState extends State<WebViewExample> {
       _counter = int.parse(_textEditController.text);
       _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
         debugPrint("$_timer?.tick :: $_counter");
-        _textEditController.text = _counter.toString();
+        _textEditController.text=_counter.toString();
         if (htmlSrc.isNotEmpty) {
           debugPrint("html解析");
+
+
 
           htmlSrc = "";
         } else {
