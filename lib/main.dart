@@ -60,7 +60,7 @@ class _WebViewExampleState extends State<WebViewExample> {
     }
 
     final WebViewController controller =
-        WebViewController.fromPlatformCreationParams(params);
+    WebViewController.fromPlatformCreationParams(params);
     // #enddocregion platform_features
 
     controller
@@ -79,36 +79,19 @@ class _WebViewExampleState extends State<WebViewExample> {
             var title = await controller.runJavaScriptReturningResult(
                 'document.title;'
             ) as String;
-            debugPrint("1 --------------------------------------");
             debugPrint(title);
-
-            debugPrint("2 --------------------------------------");
             String body = await controller.runJavaScriptReturningResult(
                 'document.getElementsByTagName("body")[0].innerHTML;'
             ) as String;
+            body = (body).replaceAll(r"\u003c", "<");
+            body = (body).replaceAll(r"\u003C", "<");
+            body = (body).replaceAll(r"\u003e", ">");
+            body = (body).replaceAll(r"\u003E", ">");
+            body = (body).replaceAll(r'\"', '"');
             debugPrint(body);
-            debugPrint("2-1 ------------------------------------");
-            var body2=parse(body);
-            debugPrint(body2.outerHtml);//getElementsByTagName("a")[0].innerHtml);
-
             debugPrint("3 --------------------------------------");
-            String tag_a0 = await controller.runJavaScriptReturningResult(
-            //final String body = await controller.runJavaScriptReturningResult(
-                'document.getElementsByTagName("a")[0].innerHTML;'
-            ) as String;
-            debugPrint(tag_a0);
-
-            debugPrint("4 --------------------------------------");
-            String tag_span0 = await controller.runJavaScriptReturningResult(
-                'document.getElementsByTagName("span")[0].innerHTML;'
-            ) as String;
-            debugPrint(tag_span0);
-
-            // debugPrint(parse(htmlSrc).getElementsByClassName("list-group-item")[1].innerHtml);
-            //debugPrint(document);
-            // debugPrint(parse(document).body?.innerHtml);
-            //     .getElementsByClassName("list-group-item")[1]
-            //     .innerHtml);
+            List groupItem = parse(body).getElementsByClassName("list-group-item");
+            debugPrint(groupItem[0]);
           },
           onUrlChange: (UrlChange change) {
             debugPrint('url change to ${change.url}');
@@ -125,8 +108,8 @@ class _WebViewExampleState extends State<WebViewExample> {
       )
       ..setUserAgent(
           "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Safari/537.36")
-      ..loadRequest(Uri.parse("https://yahoo.co.jp"));
-          //'https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/category/1111')); //https://flutter.dev'));
+      ..loadRequest(Uri.parse("https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/category/1111"));
+    //'https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/category/1111')); //https://flutter.dev'));
     //flutter_windows_3.7.12-stable
 
     // #docregion platform_features
@@ -156,36 +139,36 @@ class _WebViewExampleState extends State<WebViewExample> {
             ),
             body: Center(
                 child:
-                    Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red),
-                  ),
-                  child: SizedBox(
-                      child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
+                Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                      ),
+                      child: SizedBox(
                           child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: SizedBox(
-                                  width: 800,
-                                  height: 1400,
-                                  child: Transform.scale(
-                                      alignment: Alignment.topLeft,
-                                      //scaleX: 0.45,
-                                      scale: 0.45,
-                                      child: WebViewWidget(
-                                          layoutDirection: TextDirection.ltr,
-                                          controller: _controller)))))),
-                ),
-              ),
-              Container(
-                child: TextFormField(
-                  enabled: _textEnabled,
-                  controller: _textEditController,
-                ),
-              ),
-            ])),
+                              scrollDirection: Axis.horizontal,
+                              child: SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  child: SizedBox(
+                                      width: 800,
+                                      height: 1400,
+                                      child: Transform.scale(
+                                          alignment: Alignment.topLeft,
+                                          //scaleX: 0.45,
+                                          scale: 0.45,
+                                          child: WebViewWidget(
+                                              layoutDirection: TextDirection.ltr,
+                                              controller: _controller)))))),
+                    ),
+                  ),
+                  Container(
+                    child: TextFormField(
+                      enabled: _textEnabled,
+                      controller: _textEditController,
+                    ),
+                  ),
+                ])),
             floatingActionButton: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -217,32 +200,13 @@ class _WebViewExampleState extends State<WebViewExample> {
   int _counter = 0;
 
   void _onTimer2() {
-    var document = parse("""
-<div class="weather-item now"><!-- now -->
-<span class="time">Now</span>
-<div class="temp">19.8<span>℃</span>
-        <small>(23℃)</small>
-</div>
-<table>  
-<tbody><tr>
-           <th><i class="icon01" aria-label="true"></i></th>
-           <td>93%</td>  
-</tr>  
-<tr>
-           <th><i class="icon02" aria-label="true"></i></th>
-           <td>south 2.2km/h</td>   
-</tr>  
-<tr>
-           <th><i class="icon03" aria-label="true"></i></th>       
-<td>-</td> 
-</tr>  
-</tbody></table>
-</div>
-""");
-    debugPrint(document.getElementsByClassName("time")[0].innerHtml);
+
+    // String aaa = r"\u003";
+    // String bbb = r(aaa).replaceAll(r"\u003", "ABC");
+    // debugPrint(bbb);
   }
 
-    void _onTimer() async {
+  void _onTimer() async {
     if (_timerRun) {
       _timer!.cancel();
       _timerRun = false;
