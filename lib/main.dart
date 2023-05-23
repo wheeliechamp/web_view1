@@ -85,13 +85,21 @@ class _WebViewExampleState extends State<WebViewExample> {
             ) as String;
             body = (body).replaceAll(r"\u003c", "<");
             body = (body).replaceAll(r"\u003C", "<");
-            body = (body).replaceAll(r"\u003e", ">");
-            body = (body).replaceAll(r"\u003E", ">");
+            // body = (body).replaceAll(r"\u003e", ">");
+            // body = (body).replaceAll(r"\u003E", ">");
             body = (body).replaceAll(r'\"', '"');
             debugPrint(body);
             debugPrint("3 --------------------------------------");
             List groupItem = parse(body).getElementsByClassName("list-group-item");
-            debugPrint(groupItem[0]);
+            //List groupItem = parse(body).getElementsByTagName("a");
+            // Aタグのhref属性値を取得するには？
+            debugPrint(groupItem[7].attributes["href"]);
+            String season_url = groupItem[7].attributes["href"];
+            List season = season_url.split("season/");
+            debugPrint(season[1]);
+            // debugPrint(parse(body).getElementsByTagName("a")[0].attributes["href"]);
+            debugPrint("4 --------------------------------------");
+            // debugPrint(parse(body).getElementsByTagName("a")[0].attributes["href"].toString());
           },
           onUrlChange: (UrlChange change) {
             debugPrint('url change to ${change.url}');
