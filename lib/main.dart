@@ -7,6 +7,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:js_util';
 import 'dart:typed_data';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -40,7 +41,8 @@ class _WebViewExampleState extends State<WebViewExample> {
   bool _textEnabled = true;
   late final WebViewController _controller;
   final _textEditController = TextEditingController();
-  String htmlSrc = "";
+  String title = "";
+  String htmlbody = "";
   var document;
 
   @override
@@ -76,21 +78,21 @@ class _WebViewExampleState extends State<WebViewExample> {
           },
           onPageFinished: (String url) async {
             debugPrint('Page finished loading: $url');
-            var title = await controller.runJavaScriptReturningResult(
+            title = await controller.runJavaScriptReturningResult(
                 'document.title;'
             ) as String;
             debugPrint(title);
-            String body = await controller.runJavaScriptReturningResult(
+            htmlbody = await controller.runJavaScriptReturningResult(
                 'document.getElementsByTagName("body")[0].innerHTML;'
             ) as String;
-            body = (body).replaceAll(r"\u003c", "<");
-            body = (body).replaceAll(r"\u003C", "<");
+            htmlbody = (htmlbody).replaceAll(r"\u003c", "<");
+            htmlbody = (htmlbody).replaceAll(r"\u003C", "<");
             // body = (body).replaceAll(r"\u003e", ">");
             // body = (body).replaceAll(r"\u003E", ">");
-            body = (body).replaceAll(r'\"', '"');
-            debugPrint(body);
+            htmlbody = (htmlbody).replaceAll(r'\"', '"');
+            debugPrint(htmlbody);
             debugPrint("3 --------------------------------------");
-            List groupItem = parse(body).getElementsByClassName("list-group-item");
+            List groupItem = parse(htmlbody).getElementsByClassName("list-group-item");
             //List groupItem = parse(body).getElementsByTagName("a");
             // Aタグのhref属性値を取得するには？
             debugPrint(groupItem[7].attributes["href"]);
@@ -226,10 +228,16 @@ class _WebViewExampleState extends State<WebViewExample> {
       _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
         debugPrint("$_timer?.tick :: $_counter");
         _textEditController.text = _counter.toString();
-        if (htmlSrc.isNotEmpty) {
+        if (htmlbody.isNotEmpty) {
           debugPrint("html解析");
+          debugPrint(title);
+          // if (title == "Virtual Football - Soccer - Virtual Games Statistics") {
+          //   List groupItem = parse(htmlbody).getElementsByClassName("list-group-item");
+          //   String seasonUrl = groupItem[7].attributes["href"];
+          //   _controller.loadRequest(Uri.parse(seasonUrl));
+          //   htmlbody = "";
+          // }
 
-          htmlSrc = "";
         } else {
           debugPrint("html未取得");
           if (_counter == 0) {
