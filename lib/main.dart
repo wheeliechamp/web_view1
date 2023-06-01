@@ -241,8 +241,14 @@ class _WebViewExampleState extends State<WebViewExample> {
             // String teamData = parse(panelbody).getElementsByTagName("tr")[0].innerHtml;
             // debugPrint(teamData);
             List teamData2 = parse(panelbody).getElementsByTagName("tr");
+            debugPrint(teamData2[1].innerHtml);
             for (int i = 1; i < teamData2.length; i++) {
-              debugPrint(parse(teamData2[i].innerHtml).getElementsByTagName("td")[0].text);
+              List teamData3 = teamData2[i].getElementsByTagName("td");
+              teamData3.forEach((item) {
+                debugPrint(item.text);
+              });
+              debugPrint(teamData2[i].getElementsByTagName("td")[0].text);
+              break;
             }
 
 
