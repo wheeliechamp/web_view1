@@ -5,16 +5,10 @@
 // ignore_for_file: public_member_api_docs
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:js_util';
-import 'dart:typed_data';
-
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 // #docregion platform_imports
@@ -231,12 +225,32 @@ class _WebViewExampleState extends State<WebViewExample> {
         if (htmlbody.isNotEmpty) {
           debugPrint("html解析");
           debugPrint(title);
-          // if (title == "Virtual Football - Soccer - Virtual Games Statistics") {
-          //   List groupItem = parse(htmlbody).getElementsByClassName("list-group-item");
-          //   String seasonUrl = groupItem[7].attributes["href"];
-          //   _controller.loadRequest(Uri.parse(seasonUrl));
-          //   htmlbody = "";
-          // }
+          if (title.startsWith('"Virtual Football - Soccer')) {
+            List groupItem = parse(htmlbody).getElementsByClassName("list-group-item");
+            String seasonNum = groupItem[7].attributes["href"].split("season/")[1];
+            debugPrint("https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/season/" + seasonNum);
+            _controller.loadRequest(Uri.parse("https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/season/" + seasonNum));
+            title = "";
+            htmlbody = "";
+          } else if (title.startsWith('"Virtual Football Bundesliga')) {
+            // Section取得
+            debugPrint("Section取得");
+            //debugPrint(htmlbody);
+            String panelbody = parse(htmlbody).getElementsByClassName("panel-body")[0].innerHtml;
+            //debugPrint(panelbody);
+            // String teamData = parse(panelbody).getElementsByTagName("tr")[0].innerHtml;
+            // debugPrint(teamData);
+            List teamData2 = parse(panelbody).getElementsByTagName("tr");
+            for (int i = 1; i < teamData2.length; i++) {
+              debugPrint(parse(teamData2[i].innerHtml).getElementsByTagName("td")[0].text);
+            }
+
+
+            //   val team_listdata = panelbody.split("VL ").drop(1)
+//   val team_details = team_listdata[1].split(" ")
+//   section = team_details[1]
+
+          }
 
         } else {
           debugPrint("html未取得");
@@ -263,6 +277,125 @@ class _WebViewExampleState extends State<WebViewExample> {
     }
     setState(() {});
   }
+
+  String _getSection(String htmlBody, String season) {
+    String section = "";
+
+    return section;
+  }
+
+//   private fun getSection(htmldoc: Document, season: String): String {
+//   Log.d("Test", "========== getSection!! ==========")
+//   var section: String = ""
+//   var panelbody: String = htmldoc.getElementsByClass("panel-body").text()
+//   val team_listdata = panelbody.split("VL ").drop(1)
+//   val team_details = team_listdata[1].split(" ")
+//   section = team_details[1]
+//   return section
+//   }
+//
+//   private fun drawCheck(htmldoc: Document, season: String): String {
+//   Log.d("Test", "========== drawCheck!! ==========")
+//   var section: String = ""
+//   var msg_buf: StringBuilder = StringBuilder()
+//
+//   // シーズン名取得
+//   var headder: String = htmldoc.getElementsByClass("popup-navigation").text()
+//   var season_name: String = headder.split(" ").last()
+//   Log.d("Test", season_name)
+//
+//   var panelbody: String = htmldoc.getElementsByClass("panel-body").text()
+//   //Log.d("Test", "${htmldoc.toString()} \n $panelbody")
+//   val team_listdata = panelbody.split("VL ").drop(1)
+//   for(i in 0..31 step 2) {
+//   // Log.d("Test", team_listdata[i])     Vienna
+//   // Log.d("Test", team_listdata[i+1])   Vienna 8 1 2 5 6 15 -9 5 W L D L D Pos# TeamT P W D L GF GA DIFF PTS Form 1
+//   val team_details = team_listdata[i+1].split(" ")
+//   // 勝敗履歴
+//   var j: Int = 0
+//   var wdl: String = ""
+//   for(detail in team_details) {
+//   if (j >= 9 && j <= 13) {
+//   if (detail == "W" || detail == "D" || detail == "L") {
+//   wdl += detail
+//   } else {
+//   break
+//   }
+//   }
+//   j++
+//   }
+//   var team_name: String = team_details[0]
+//   section = team_details[1]
+//   // ゲーム履歴を追加
+//   if (prev_section != Integer.parseInt(section) && Integer.parseInt(section) > 0) {
+//   if (hashmap["$season_name:$team_name"].isNullOrEmpty()) {
+//   // 履歴がない場合
+//   Log.d("Test", "履歴追加")
+//   hashmap["$season_name:$team_name"] = wdl
+//   //hashmap["$season:$team_name"] = team_details[9]
+//   } else {
+//   var tmp = hashmap["$season_name:$team_name"]
+//   hashmap["$season_name:$team_name"] = team_details[9] + tmp
+//   }
+//   }
+//
+//   var d3: Boolean = wdl.startsWith("DDD")
+//   var d4: Boolean = wdl.startsWith("DDDD")
+//   var d5: Boolean = wdl.startsWith("DDDDD")
+//
+//   if (d3 || d4 || d5) {
+//   msg_buf.append("$section : ${(i+2)/2} : $team_name:[$wdl]\n")
+//   } else {
+//   }
+//   if (i <= 8) {
+//   // 5位まで3戦勝ちなし
+//   var w: Int = wdl.indexOf("W")
+//   //var l3: Boolean = wdl.startsWith
+//   //                // 該当なし("LLL")
+//   if ((w < 0) || (w >= 3)) {
+//   msg_buf.append("$section : ${(i + 2) / 2} : $team_name:[$wdl]\n")
+//   }
+//   }
+//   if (i == 30) {
+//   // 最下位が3連勝
+//   if (wdl.startsWith("WWW")) {
+//   msg_buf.append("$section: $i: $team_name:[$wdl]\n")
+//   }
+//   }
+// // 信頼度低いので一旦はずす
+// //            // 引き分け数が11以上
+// //            if (team_details[3].toInt() >= 11) {
+// //                var draw = team_details[3]
+// //                //msg_buf.append("$section : $i : $team_name:draw $draw:[$wdl]\n")
+// //            }
+// //            // 11戦以上未勝利
+// //            if (section.toInt() >= 11) {
+// //                if (team_details[2].toInt() == 0) {
+// //                    //msg_buf.append("$section : $i : $team_name:未勝利\n")
+// //                }
+// //            }
+//
+//   Log.d("Test", "$section, ${(i+2)/2}, $team_name, $wdl")
+//   }
+//   if (msg_buf.isNotEmpty()) {
+//   sendMessage(msg_buf.toString())
+//   Log.d("Test", "msg :: ${msg_buf.toString()}")
+//   msg_buf.clear()
+//   }
+//   prev_section = Integer.parseInt(section)
+//   return section
+//   }
+//
+//   // Slackにメッセージ送信
+//   fun sendMessage(msg: String) {
+//   val webhook: String = "https://hooks.slack.com/services/..."
+//   val body: String = "{ \"text\" : \"$msg\" }"
+//   Fuel.post(webhook).body(body).response { _, response, result ->
+//   Log.d("Send", response.toString())
+//   Log.d("Send", result.toString())
+//   }
+//   Log.d("Test", "sendMessage")
+//   }
 }
 
 class NavigationControls extends StatelessWidget {
