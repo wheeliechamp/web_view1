@@ -89,8 +89,8 @@ class _WebViewExampleState extends State<WebViewExample> {
             List groupItem = parse(htmlbody).getElementsByClassName("list-group-item");
             //List groupItem = parse(body).getElementsByTagName("a");
             // Aタグのhref属性値を取得するには？
-            debugPrint(groupItem[7].attributes["href"]);
-            String season_url = groupItem[7].attributes["href"];
+            debugPrint(groupItem[2].attributes["href"]);
+            String season_url = groupItem[2].attributes["href"];
             List season = season_url.split("season/");
             debugPrint(season[1]);
             // debugPrint(parse(body).getElementsByTagName("a")[0].attributes["href"]);
@@ -227,12 +227,13 @@ class _WebViewExampleState extends State<WebViewExample> {
           debugPrint(title);
           if (title.startsWith('"Virtual Football - Soccer')) {
             List groupItem = parse(htmlbody).getElementsByClassName("list-group-item");
-            String seasonNum = groupItem[7].attributes["href"].split("season/")[1];
+            String seasonNum = groupItem[2].attributes["href"].split("season/")[1];
             debugPrint("https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/season/" + seasonNum);
             _controller.loadRequest(Uri.parse("https://st-cdn001.akamaized.net/fc10cricvirtuals/en/1/season/" + seasonNum));
             title = "";
             htmlbody = "";
-          } else if (title.startsWith('"Virtual Football Bundesliga')) {
+          //} else if (title.startsWith('"Virtual Football Bundesliga')) {
+          } else if (title.startsWith('"Virtual Football League Mode')) {
             // Section取得
             debugPrint("Section取得");
             //debugPrint(htmlbody);
@@ -241,13 +242,20 @@ class _WebViewExampleState extends State<WebViewExample> {
             // String teamData = parse(panelbody).getElementsByTagName("tr")[0].innerHtml;
             // debugPrint(teamData);
             List teamData2 = parse(panelbody).getElementsByTagName("tr");
-            debugPrint(teamData2[1].innerHtml);
+            //debugPrint(teamData2[1].innerHtml);
             for (int i = 1; i < teamData2.length; i++) {
               List teamData3 = teamData2[i].getElementsByTagName("td");
-              teamData3.forEach((item) {
-                debugPrint(item.text);
-              });
-              debugPrint(teamData2[i].getElementsByTagName("td")[0].text);
+              final result = teamData3.map((item) => item.text);
+              debugPrint(result.join(" "));
+              //var result = teamData3.map((item) => item);
+              // String aaa = "";
+              // teamData3.forEach((item) =>  aaa = aaa + item.text);
+              //debugPrint(aaa);
+              // teamData3.forEach((item) {
+              //   debugPrint(item.text);
+              //   // ここでセクション取得
+              // });
+              // debugPrint(teamData2[i].getElementsByTagName("td")[0].text);
               break;
             }
 
